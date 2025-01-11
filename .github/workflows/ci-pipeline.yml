@@ -52,7 +52,7 @@ jobs:
             -v "$(pwd)/dependency-check-report:/report" \
             owasp/dependency-check:latest \
             --scan /src \
-            --format "ALL" \
+            --format "HTML" \
             --out /report
 
       # 3. Subir el reporte como artefacto
@@ -83,12 +83,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download Docker Image
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
 
-      # 2. Escaneo de seguridad con Trivy
+      - name: Load Docker Image
+        run: |
+          gunzip -c docker-image.tar.gz | docker load
+
       - name: Scan Docker Image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.11.2
         with:
           image-ref: arnaldoquezada/laboratorio-final:latest
