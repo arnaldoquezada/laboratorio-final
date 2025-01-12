@@ -29,4 +29,4 @@ jobs:
   # Llamar a la construcción de Docker
   docker-build:
     uses: ./.github/workflows/build.yml
-    needs: sonarcloud # Ejecuta este job después de SonarCloud
+    needs: sca # Ejecuta este job después de SonarCloud
