@@ -1,50 +1,59 @@
-name: SonarCloud Analysis
+name: SonarQube Analysis
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
+  build:
+    name: Build and Analyze
     runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout del código
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Desactivar clones superficiales para un análisis más preciso
 
       # 2. Configurar Java a la versión 17
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
         with:
-          distribution: temurin
           java-version: 17
 
-      # 3. Instalar SonarScanner CLI
-      - name: Install SonarScanner CLI
-        run: |
-          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-          unzip sonar-scanner-cli.zip
-          mv sonar-scanner-4.7.0.2747-linux sonar-scanner
-          echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
+      # 3. Cachear dependencias de SonarQube
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # 4. Cachear dependencias de Maven (si aplicable)
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # 5. Construir y analizar el proyecto
+      - name: Build and analyze
         env:
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17*/x64
-
-      # 4. Verificar versión de Java y SonarScanner
-      - name: Verify Java and SonarScanner Versions
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          java -version
-          sonar-scanner --version
+          # Comando de construcción específico de tu proyecto
+          # Por ejemplo, para un proyecto Maven:
+          mvn clean verify
 
-      # 5. Ejecutar SonarScanner con depuración (-X)
-      - name: SonarCloud Scan with Debug
-        run: |
-          sonar-scanner \
+          # Ejecutar el análisis de SonarQube
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final \
             -Dsonar.organization=arnaldoquezada-personal \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.sources=. \
-            -X
-        env:
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17*/x64
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
