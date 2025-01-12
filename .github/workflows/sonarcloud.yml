@@ -1,11 +1,7 @@
 name: SonarCloud Analysis
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_call:
 
 jobs:
   sonarcloud:
@@ -18,9 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Configurar Java a la versión 17
-      - name: Set up JDK 17
+      - name: Setup Java
         uses: actions/setup-java@v3
         with:
+          distribution: temurin # Especifica la distribución de Java
           java-version: 17
 
       # 3. Instalar SonarScanner CLI
