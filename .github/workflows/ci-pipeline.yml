@@ -8,15 +8,23 @@ on:
     branches:
       - main
 
-jobs:
-  # Llamar al análisis SCA
-  sca:
-    uses: ./.github/workflows/sca.yml
+# 1. Clonación del repositorio.(Fork)
+# 2. Ejecutar SAST -> Usar SonarCloud o herramienta similar.
+# 3. Ejecutar SCA ->Usar Dependency Check o similar.
+# 4. Construcción de la Imagen Docker.
+# 5. Image Security -> Usar Trivy o similar.
+# 6. Despliegue de la aplicación -> Puede utilizar Minikube o Docker de su
+# equipo(notebook).
 
+jobs:
   # Llamar al análisis de SonarCloud
   sonarcloud:
     uses: ./.github/workflows/sonarcloud.yml
-    needs: sca # Ejecuta este job después del SCA
+
+  # Llamar al análisis SonarCloud
+  sca:
+    uses: ./.github/workflows/sca.yml
+    needs: sonarcloud # Ejecuta este job después del SCA
 
   # Llamar a la construcción de Docker
   docker-build:
