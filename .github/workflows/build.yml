@@ -1,12 +1,13 @@
-name: Docker Build
+name: CI Pipeline with Docker Build and Push
 
 on:
   workflow_call:
 
 jobs:
-  build:
-    name: Docker Build
+  # Job para construir la imagen Docker
+  docker-build:
     runs-on: ubuntu-latest
+    name: Build Docker Image
 
     steps:
       # 1. Checkout del código
@@ -17,3 +18,36 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t arnaldoquezada/laboratorio-final:latest .
+
+      # 3. Guardar la imagen en el runner
+      - name: Verify Docker Image
+        run: |
+          docker images | grep arnaldoquezada/laboratorio-final
+
+  # Job para subir la imagen a Docker Hub
+  docker-push:
+    runs-on: ubuntu-latest
+    name: Push Docker Image
+    needs: docker-build # Este job depende de 'docker-build'
+
+    steps:
+      # 1. Checkout del código (opcional, si se necesita)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Iniciar sesión en Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 3. Etiquetar la imagen para Docker Hub
+      - name: Tag Docker Image
+        run: |
+          docker tag arnaldoquezada/laboratorio-final:latest arnaldoquezada/laboratorio-final:latest
+
+      # 4. Subir la imagen a Docker Hub
+      - name: Push Docker Image
+        run: |
+          docker push arnaldoquezada/laboratorio-final:latest
