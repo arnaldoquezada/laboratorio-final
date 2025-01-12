@@ -27,8 +27,16 @@ jobs:
           unzip sonar-scanner-cli.zip
           mv sonar-scanner-4.7.0.2747-linux sonar-scanner
           echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17*/x64
 
-      # 4. Ejecutar SonarScanner con depuración (-X)
+      # 4. Verificar versión de Java y SonarScanner
+      - name: Verify Java and SonarScanner Versions
+        run: |
+          java -version
+          sonar-scanner --version
+
+      # 5. Ejecutar SonarScanner con depuración (-X)
       - name: SonarCloud Scan with Debug
         run: |
           sonar-scanner \
@@ -38,3 +46,5 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.sources=. \
             -X
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17*/x64
