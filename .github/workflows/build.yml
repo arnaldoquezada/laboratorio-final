@@ -1,0 +1,19 @@
+name: Docker Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Construcción de la imagen Docker
+      - name: Build Docker Image
+        run: |
+          docker build -t arnaldoquezada/laboratorio-final:latest .

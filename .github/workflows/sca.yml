@@ -1,4 +1,7 @@
-on: [push]
+name: Dependency Analysis SCA
+
+on:
+  workflow_call:
 
 jobs:
   depchecktest:

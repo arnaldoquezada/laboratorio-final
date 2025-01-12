@@ -1,0 +1,35 @@
+name: SonarCloud Analysis
+
+on:
+  workflow_call:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Configurar Java
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: temurin
+
+      # 3. Ejecutar análisis con SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=laboratorio-final
+            -Dsonar.organization=arnaldoquezada
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=src
