@@ -35,7 +35,9 @@ jobs:
             -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final \
             -Dsonar.organization=arnaldoquezada-personal \
             -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.toke=$SONAR_TOKEN \
             -Dsonar.sources=. \
             -X
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          REPO_NAME: ${{ github.event.repository.name }}
