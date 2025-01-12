@@ -14,10 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Configurar Java a la versión 17
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin # Especifica la distribución de Java
+          distribution: temurin
           java-version: 17
 
       # 3. Instalar SonarScanner CLI
@@ -28,13 +28,19 @@ jobs:
           mv sonar-scanner-4.7.0.2747-linux sonar-scanner
           echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
 
-      # 4. Ejecutar SonarScanner
+      # 4. Verificar la versión de Java
+      - name: Verify Java Version
+        run: java -version
+
+      # 5. Ejecutar SonarScanner
       - name: Run SonarScanner
         run: |
           sonar-scanner \
             -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final \
             -Dsonar.organization=arnaldoquezada-personal \
-            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.sources=. \
             -X
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
