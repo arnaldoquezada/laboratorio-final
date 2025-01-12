@@ -1,4 +1,4 @@
-name: SonarQube Analysis
+name: SonarCloud Analysis
 
 on:
   push:
@@ -8,52 +8,36 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build and Analyze
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout del código
       - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # Desactivar clones superficiales para un análisis más preciso
+        uses: actions/checkout@v4
 
       # 2. Configurar Java a la versión 17
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: 17
 
-      # 3. Cachear dependencias de SonarQube
-      - name: Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      # 4. Cachear dependencias de Maven (si aplicable)
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      # 5. Construir y analizar el proyecto
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # 3. Instalar SonarScanner CLI
+      - name: Install SonarScanner CLI
         run: |
-          # Comando de construcción específico de tu proyecto
-          # Por ejemplo, para un proyecto Maven:
-          mvn clean verify
+          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+          unzip sonar-scanner-cli.zip
+          mv sonar-scanner-4.7.0.2747-linux sonar-scanner
+          echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
 
-          # Ejecutar el análisis de SonarQube
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+      # 4. Ejecutar SonarScanner
+      - name: Run SonarScanner
+        run: |
+          sonar-scanner \
             -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final \
             -Dsonar.organization=arnaldoquezada-personal \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.sources=. \
+            -X
