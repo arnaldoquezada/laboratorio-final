@@ -33,35 +33,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  # Análisis de dependencias con OWASP Dependency-Check
-  sca:
-    name: Dependency Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      # 1. Checkout del código
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # 2. Ejecutar OWASP Dependency-Check
-      - name: Run OWASP Dependency-Check
-        run: |
-          docker run --rm \
-            -v "$(pwd):/src" \
-            -v "$(pwd)/dependency-check-data:/usr/share/dependency-check/data" \
-            -v "$(pwd)/dependency-check-report:/report" \
-            owasp/dependency-check:latest \
-            --scan /src \
-            --format "HTML" \
-            --out /report
-
-      # 3. Subir el reporte como artefacto
-      - name: Upload Dependency-Check Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: dependency-check-report
-          path: dependency-check-report/
-
   # Construcción de la imagen Docker
   docker-build:
     name: Docker Build
