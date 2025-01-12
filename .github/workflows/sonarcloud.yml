@@ -13,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Configurar Java
+      # 2. Configurar Java a la versión 17
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 17
 
       # 3. Instalar SonarScanner CLI
       - name: Install SonarScanner CLI
@@ -38,5 +38,3 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.sources=. \
             -X
-        env:
-          REPO_NAME: ${{ github.event.repository.name }}
