@@ -25,5 +25,6 @@ jobs:
             -Dsonar.organization=arnaldoquezada-personal
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=.
+            -Dsonar.branch.name=main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
