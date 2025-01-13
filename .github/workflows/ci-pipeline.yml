@@ -34,4 +34,4 @@ jobs:
     needs: sca # Ejecuta este job después de SonarCloud
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_PASSWORD }}

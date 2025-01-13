@@ -5,7 +5,7 @@ on:
     secrets:
       DOCKER_USERNAME:
         required: true
-      DOCKER_TOKEN:
+      DOCKER_PASSWORD:
         required: true
 jobs:
   # Job para construir la imagen Docker
