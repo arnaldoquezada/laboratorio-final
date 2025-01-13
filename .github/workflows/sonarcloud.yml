@@ -30,7 +30,11 @@ jobs:
 
       # 4. Verificar la versión de Java
       - name: Verify Java Version
-        run: java -version
+        run: |
+          echo "Using JAVA_HOME=$JAVA_HOME"
+          java -version
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
 
       # 5. Ejecutar SonarScanner
       - name: Run SonarScanner
