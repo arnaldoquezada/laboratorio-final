@@ -27,19 +27,12 @@ jobs:
           unzip sonar-scanner-cli.zip
           mv sonar-scanner-4.7.0.2747-linux sonar-scanner
           echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner" >> $GITHUB_ENV
-          echo "$PWD/sonar-scanner/bin" >> $GITHUB_ENV/PATH
-          export PATH=$PATH:$PWD/sonar-scanner/bin
-        env:
-          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
+          echo "$PWD/sonar-scanner/bin" >> $GITHUB_PATH
 
       # 4. Verificar la instalación de SonarScanner
       - name: Verify SonarScanner Installation
         run: |
-          echo "PATH: $PATH"
           sonar-scanner --version
-        env:
-          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
-          PATH: $PATH:/home/runner/work/laboratorio-final/laboratorio-final/sonar-scanner/bin
 
       # 5. Ejecutar SonarScanner
       - name: Run SonarScanner
@@ -51,6 +44,3 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.sources=. \
             -X
-        env:
-          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
-          PATH: $PATH:/home/runner/work/laboratorio-final/laboratorio-final/sonar-scanner/bin
