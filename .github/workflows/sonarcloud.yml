@@ -1,10 +1,15 @@
 name: SonarCloud Analysis
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  sonarcloud:
+  sonarCloudTrigger:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
@@ -13,36 +18,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Configurar Java a la versión 17
-      - name: Setup Java 17
+      # 2. Configurar Java 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: "temurin" # Utilizando Temurin JDK
+          java-version: "17"
 
-      # 3. Descargar e Instalar SonarScanner CLI
-      - name: Install SonarScanner CLI
-        run: |
-          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
-          unzip sonar-scanner-cli.zip
-          mv sonar-scanner-4.7.0.2747-linux sonar-scanner
-          echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner" >> $GITHUB_ENV
-          echo "$PWD/sonar-scanner/bin" >> $GITHUB_PATH
+      # 3. Ejecutar la acción oficial de SonarQube
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final
+            -Dsonar.organization=arnaldoquezada-personal
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=.
 
-      # 4. Verificar la instalación de SonarScanner
-      - name: Verify SonarScanner Installation
-        run: |
-          sonar-scanner --version
-
-      # 5. Ejecutar SonarScanner
-      - name: Run SonarScanner
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=arnaldoquezada-personal_laboratorio-final \
-            -Dsonar.organization=arnaldoquezada-personal \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.sources=. \
-            -X
         env:
-          JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
