@@ -1,7 +1,9 @@
 name: SonarCloud Analysis
 on:
   workflow_call:
-
+    secrets:
+      SONAR_TOKEN:
+        required: true
 jobs:
   sonarCloudTrigger:
     name: SonarCloud Analysis
@@ -19,5 +21,11 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.2.1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+            args: >
+              -Dsonar.projectKey=arnaldoquezada_laboratorio-final
+              -Dsonar.organization=arnaldoquezada-personal
+              -Dsonar.host.url=https://sonarcloud.io
+              -Dsonar.sources=.
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
