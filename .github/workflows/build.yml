@@ -1,52 +1,32 @@
-name: Build and Push
+name: Build and Push Docker Image
 
 on:
-  workflow_call:
-    secrets:
-      DOCKER_USERNAME:
-        required: true
-      DOCKER_TOKEN:
-        required: true
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  # Job para construir la imagen Docker
-  docker-build:
+  build-and-push:
     runs-on: ubuntu-latest
-    name: Build Docker Image
+    name: Build and Push Docker Image
 
     steps:
       # 1. Checkout del código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Construcción de la imagen Docker
-      - name: Build Docker Image
-        run: |
-          echo "Building Docker image..."
-          docker build -t arnaldoquezada/laboratorio-final:latest .
-
-      # 3. Verificar que la imagen se construyó correctamente
-      - name: Verify Docker Image
-        run: |
-          echo "Verifying Docker image..."
-          docker images | grep arnaldoquezada/laboratorio-final
-
-  # Job para subir la imagen a Docker Hub
-  docker-push:
-    runs-on: ubuntu-latest
-    name: Push Docker Image
-    needs: docker-build # Este job depende de 'docker-build'
-
-    steps:
-      # 1. Iniciar sesión en Docker Hub
+      # 2. Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 2. Subir la imagen a Docker Hub
-      - name: Push Docker Image
+      # 3. Build and push Docker image
+      - name: Build and Push Docker Image
         run: |
-          echo "Pushing Docker image to Docker Hub..."
+          docker build -t arnaldoquezada/laboratorio-final:latest .
           docker push arnaldoquezada/laboratorio-final:latest
