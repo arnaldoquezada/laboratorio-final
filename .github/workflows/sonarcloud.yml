@@ -26,13 +26,14 @@ jobs:
           curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
           unzip sonar-scanner-cli.zip
           mv sonar-scanner-4.7.0.2747-linux sonar-scanner
+          echo "SONAR_SCANNER_HOME=$PWD/sonar-scanner" >> $GITHUB_ENV
           echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
 
-      # 4. Verificar la versión de Java
-      - name: Verify Java Version
+      # 4. Verificar la versión de Java y SonarScanner
+      - name: Verify Java and SonarScanner Versions
         run: |
-          echo "Using JAVA_HOME=$JAVA_HOME"
           java -version
+          sonar-scanner --version
         env:
           JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
 
@@ -48,3 +49,4 @@ jobs:
             -X
         env:
           JAVA_HOME: /opt/hostedtoolcache/jdk/17.0.13/x64
+          PATH: /opt/hostedtoolcache/jdk/17.0.13/x64/bin:$PATH
