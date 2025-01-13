@@ -7,14 +7,14 @@ jobs:
   depchecktest:
     runs-on: ubuntu-latest
     name: Dependency-Check
-    continue-on-error: true # Permite continuar con los otros jobs incluso si falla este
+    continue-on-error: true # Permite que el pipeline siga con otros jobs
 
     steps:
       # 1. Checkout del código
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Instalar dependencias del proyecto (si aplica)
+      # 2. Instalar dependencias del proyecto
       - name: Build project
         run: |
           npm install
@@ -34,19 +34,20 @@ jobs:
             --failOnCVSS 7
             --enableRetired
 
-      # 4. Subir el reporte como artefacto
+      # 4. Subir el reporte como artefacto (siempre)
       - name: Upload Dependency-Check Report
+        if: always() # Este paso siempre se ejecutará
         uses: actions/upload-artifact@v3
         with:
           name: Dependency-Check Report
           path: ./reports/dependency-check-report.html
 
-      # 5. Registrar vulnerabilidades en el log
+      # 5. Validar Vulnerabilidades
       - name: Validate Vulnerabilities
         run: |
           if grep -q "CRITICAL" ./reports/dependency-check-report.html || grep -q "HIGH" ./reports/dependency-check-report.html || grep -q "MEDIUM" ./reports/dependency-check-report.html; then
             echo "Vulnerabilities detected (CRITICAL, HIGH, MEDIUM)."
-            exit 1 # Este paso marcará este job como fallido
+            exit 1 # Marca el job como fallido
           else
             echo "No critical vulnerabilities found."
           fi
