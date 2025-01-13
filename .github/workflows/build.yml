@@ -7,9 +7,10 @@ on:
         required: true
       DOCKER_TOKEN:
         required: true
+
 jobs:
   build-and-scan:
-    name: Build Scan and Upload
+    name: Build, Scan, and Push
     runs-on: ubuntu-latest
     steps:
       # 1. Checkout del código
@@ -30,15 +31,16 @@ jobs:
 
       # 4. Run Trivy Vulnerability Scanner and Save Report
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@0.31.3
         with:
-          image-ref: "arnaldoquezada/laboratorio-final:latest"
+          image-ref: "arnaldoquezada/laboratorio-final:${{ github.sha }}"
           format: "template"
-          template: "@/contrib/html.tpl"
+          template: ".github/templates/html.tpl" # Ruta de la plantilla local
           output: "trivy-report.html" # Genera el archivo HTML
           severity: "CRITICAL,HIGH,MEDIUM"
+          exit-code: "1" # Falla el pipeline si encuentra vulnerabilidades en los niveles especificados
 
-      # 5. Upload Report as an Artifact
+      # 5. Upload Trivy Report as an Artifact
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v3
         with:
