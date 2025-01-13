@@ -6,30 +6,47 @@ on:
 jobs:
   depchecktest:
     runs-on: ubuntu-latest
-    name: dependency-check
-    continue-on-error: true
+    name: Dependency-Check
+    continue-on-error: true # Permite continuar con los otros jobs incluso si falla este
+
     steps:
+      # 1. Checkout del código
       - name: Checkout
         uses: actions/checkout@v4
+
+      # 2. Instalar dependencias del proyecto (si aplica)
       - name: Build project
         run: |
           npm install
+
+      # 3. Ejecutar Dependency-Check
       - name: Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
-        id: Depcheck
-        continue-on-error: true
+        id: depcheck
         env:
           JAVA_HOME: /opt/jdk
         with:
           project: "${{ github.event.repository.name }}"
           path: "."
           format: "HTML"
-          out: "reports" # this is the default, no need to specify unless you wish to override it
+          out: "reports" # Directorio para guardar el reporte
           args: >
             --failOnCVSS 7
             --enableRetired
-      - name: Upload Test results
+
+      # 4. Subir el reporte como artefacto
+      - name: Upload Dependency-Check Report
         uses: actions/upload-artifact@v3
         with:
-          name: Depcheck report
+          name: Dependency-Check Report
           path: ./reports/dependency-check-report.html
+
+      # 5. Registrar vulnerabilidades en el log
+      - name: Validate Vulnerabilities
+        run: |
+          if grep -q "CRITICAL" ./reports/dependency-check-report.html || grep -q "HIGH" ./reports/dependency-check-report.html || grep -q "MEDIUM" ./reports/dependency-check-report.html; then
+            echo "Vulnerabilities detected (CRITICAL, HIGH, MEDIUM)."
+            exit 1 # Este paso marcará este job como fallido
+          else
+            echo "No critical vulnerabilities found."
+          fi
