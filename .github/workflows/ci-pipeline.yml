@@ -18,7 +18,7 @@ on:
 
 jobs:
   # Llamar al análisis de SonarCloud
-  sonarcloud:
+  sast:
     uses: ./.github/workflows/sonarcloud.yml
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -26,7 +26,7 @@ jobs:
   # Llamar al análisis SonarCloud
   sca:
     uses: ./.github/workflows/sca.yml
-    needs: sonarcloud # Ejecuta este job después del SCA
+    needs: sast # Ejecuta este job después del SCA
 
   # Llamar a la construcción de Docker
   docker-build:
