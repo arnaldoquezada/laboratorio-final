@@ -1,20 +1,22 @@
-name: Build, Scan, and Push Docker Image
+name: Build, Scan and Push Docker Image
 
 on:
-  workflow_call:
-    secrets:
-      DOCKER_USERNAME:
-        required: true
-      DOCKER_TOKEN:
-        required: true
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  build-and-scan:
-    name: Build and Scan
+  build-scan-push:
     runs-on: ubuntu-latest
+    name: Build, Scan and Push Docker Image
+
     steps:
       # 1. Checkout del código
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Log in to Docker Hub
       - name: Log in to Docker Hub
@@ -23,24 +25,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 3. Build Docker image
+      # 3. Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t arnaldoquezada/laboratorio-final:${{ github.sha }} .
+          docker build -t arnaldoquezada/laboratorio-final:latest .
 
-      # 4. Run Trivy vulnerability scanner
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+      # 4. Run Trivy Vulnerability Scanner
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@0.31.3
         with:
-          image-ref: "arnaldoquezada/laboratorio-final:${{ github.sha }}"
+          image-ref: "arnaldoquezada/laboratorio-final:latest"
           format: "table"
-          exit-code: "1" # Falla si encuentra vulnerabilidades críticas o altas
-          ignore-unfixed: true
+          exit-code: "1" # Hacer fallar el pipeline si hay vulnerabilidades
+          ignore-unfixed: true # Ignorar vulnerabilidades sin solución conocida
           vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
+          severity: "CRITICAL,HIGH,MEDIUM" # Especificar las severidades que fallan el pipeline
 
-      # 5. Push Docker image (only if Trivy scan passes)
+      # 5. Push Docker Image (solo si no hay vulnerabilidades críticas, altas o medias)
       - name: Push Docker Image
-        if: success() # Este paso solo se ejecuta si el análisis de Trivy pasa
+        if: ${{ success() }} # Solo ejecutar si los pasos anteriores son exitosos
         run: |
-          docker push arnaldoquezada/laboratorio-final:${{ github.sha }}
+          docker push arnaldoquezada/laboratorio-final:latest
