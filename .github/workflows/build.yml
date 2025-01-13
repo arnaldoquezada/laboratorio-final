@@ -49,14 +49,7 @@ jobs:
           name: trivy-report
           path: trivy-report.html
 
-      # 6. Fail the pipeline if vulnerabilities are found
-      - name: Check for Vulnerabilities
-        run: |
-          echo "Failing pipeline due to vulnerabilities found by Trivy."
-          exit 1
-        if: failure() # Este paso se ejecuta solo si Trivy encuentra vulnerabilidades
-
-      # 7. Push Docker image (only if no vulnerabilities are found)
+      # 6. Push Docker image (only if no vulnerabilities are found)
       - name: Push Docker Image
         if: steps.trivy-scan.outcome == 'success'
         run: |
