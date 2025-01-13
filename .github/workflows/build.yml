@@ -30,7 +30,7 @@ jobs:
 
       # 4. Run Trivy Vulnerability Scanner and Save Report
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@0.31.3
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: "arnaldoquezada/laboratorio-final:latest"
           format: "template"
