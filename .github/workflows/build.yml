@@ -31,6 +31,7 @@ jobs:
 
       # 4. Run Trivy Vulnerability Scanner (always generate report)
       - name: Run Trivy Vulnerability Scanner
+        id: trivy-scan
         uses: aquasecurity/trivy-action@0.29.0
         continue-on-error: true # No falla inmediatamente si encuentra vulnerabilidades
         with:
@@ -39,7 +40,7 @@ jobs:
           template: ".github/templates/html.tpl"
           output: "trivy-report.html"
           severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "0" # No interrumpe el pipeline
+          exit-code: "1"
 
       # 5. Upload Trivy Report as an Artifact
       - name: Upload Trivy Report
@@ -57,6 +58,6 @@ jobs:
 
       # 7. Push Docker image (only if no vulnerabilities are found)
       - name: Push Docker Image
-        if: success()
+        if: steps.trivy-scan.outcome == 'success'
         run: |
           docker push arnaldoquezada/laboratorio-final:${{ github.sha }}
