@@ -37,7 +37,7 @@ jobs:
         with:
           image-ref: "arnaldoquezada/laboratorio-final:${{ github.sha }}"
           format: "template"
-          template: ".github/templates/html.tpl"
+          template: "@$HOME/.local/bin/trivy-bin/contrib/html.tpl"
           output: "trivy-report.html"
           severity: "CRITICAL,HIGH,MEDIUM"
           exit-code: "1"
