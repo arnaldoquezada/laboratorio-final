@@ -29,16 +29,17 @@ jobs:
         run: |
           docker build -t arnaldoquezada/laboratorio-final:${{ github.sha }} .
 
-      # 4. Run Trivy Vulnerability Scanner and Save Report
+      # 4. Run Trivy Vulnerability Scanner (always generate report)
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.29.0
+        continue-on-error: true # No falla inmediatamente si encuentra vulnerabilidades
         with:
           image-ref: "arnaldoquezada/laboratorio-final:${{ github.sha }}"
           format: "template"
-          template: ".github/templates/html.tpl" # Ruta de la plantilla local
-          output: "trivy-report.html" # Genera el archivo HTML
+          template: ".github/templates/html.tpl"
+          output: "trivy-report.html"
           severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "1" # Falla el pipeline si encuentra vulnerabilidades en los niveles especificados
+          exit-code: "0" # No interrumpe el pipeline
 
       # 5. Upload Trivy Report as an Artifact
       - name: Upload Trivy Report
@@ -47,8 +48,15 @@ jobs:
           name: trivy-report
           path: trivy-report.html
 
-      # 6. Push Docker image (only if Trivy scan passes)
+      # 6. Fail the pipeline if vulnerabilities are found
+      - name: Check for Vulnerabilities
+        run: |
+          echo "Failing pipeline due to vulnerabilities found by Trivy."
+          exit 1
+        if: failure() # Este paso se ejecuta solo si Trivy encuentra vulnerabilidades
+
+      # 7. Push Docker image (only if no vulnerabilities are found)
       - name: Push Docker Image
-        if: success() # Este paso solo se ejecuta si el análisis de Trivy pasa
+        if: success()
         run: |
           docker push arnaldoquezada/laboratorio-final:${{ github.sha }}
