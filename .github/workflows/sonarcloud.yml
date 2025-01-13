@@ -1,27 +1,27 @@
-name: SonarCloud Analysis
 on:
-  workflow_call:
-    secrets:
-      SONAR_TOKEN:
-        required: true
-jobs:
-  sonarCloudTrigger:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "17"
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4.2.1
-        with:
+    workflow_call:
+      secrets:
+        SONAR_TOKEN:
+          required: true
+  
+  jobs:
+    sonarCloudTrigger:
+      name: SonarCloud Analysis
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+  
+        - name: Set up JDK 17
+          uses: actions/setup-java@v3
+          with:
+            distribution: "temurin"
+            java-version: "17"
+  
+        - name: SonarCloud Scan
+          uses: sonarsource/sonarqube-scan-action@v2
+          with:
             args: >
               -Dsonar.projectKey=arnaldoquezada_laboratorio-final
               -Dsonar.organization=arnaldoquezada-personal
@@ -29,3 +29,4 @@ jobs:
               -Dsonar.sources=.
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
