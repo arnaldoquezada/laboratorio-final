@@ -1,8 +1,12 @@
-name: CI Pipeline with Docker Build and Push
+name: Build and Push
 
 on:
   workflow_call:
-
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_TOKEN:
+        required: true
 jobs:
   # Job para construir la imagen Docker
   docker-build:

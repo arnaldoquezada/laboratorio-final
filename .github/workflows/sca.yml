@@ -1,4 +1,4 @@
-name: Dependency Analysis SCA
+name: SCA
 
 on:
   workflow_call:

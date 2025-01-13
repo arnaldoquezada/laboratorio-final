@@ -1,4 +1,4 @@
-name: SonarCloud Analysis
+name: SAST
 
 on:
   workflow_call:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
