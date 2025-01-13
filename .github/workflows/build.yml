@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Scan, and Push Docker Image
 
 on:
   workflow_call:
@@ -9,9 +9,9 @@ on:
         required: true
 
 jobs:
-  build-and-push:
+  build-scan-and-push:
     runs-on: ubuntu-latest
-    name: Build and Push Docker Image
+    name: Build, Scan, and Push Docker Image
 
     steps:
       # 1. Checkout del código
@@ -25,8 +25,22 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # 3. Build and push Docker image
-      - name: Build and Push Docker Image
+      # 3. Build Docker Image
+      - name: Build Docker Image
         run: |
           docker build -t arnaldoquezada/laboratorio-final:latest .
+
+      # 4. Scan Docker Image with Trivy
+      - name: Scan Docker Image for Vulnerabilities
+        uses: aquasecurity/trivy-action@v0.11.0
+        with:
+          image-ref: arnaldoquezada/laboratorio-final:latest
+          format: table
+          ignore-unfixed: true
+          vuln-type: os,library
+
+      # 5. Push Docker Image
+      - name: Push Docker Image
+        if: success() # Solo se ejecuta si el escaneo de Trivy pasa
+        run: |
           docker push arnaldoquezada/laboratorio-final:latest
